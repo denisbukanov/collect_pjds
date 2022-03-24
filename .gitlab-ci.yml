@@ -1,0 +1,23 @@
+stages:
+  - build
+  - package
+
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/cargo
+
+build:
+  image: 'rust:latest'
+  stage: build
+  tags:
+    - rust
+  before_script:
+    - rustc --version && cargo --version
+    - cargo test
+  script:
+    - cargo build --release
+  after_script:
+    - find target/release -maxdepth 1 -executable -type f  -exec cp -r "{}" /artifacts/ \;
+  cache:
+    paths:
+      - $CARGO_HOME
+
