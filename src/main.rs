@@ -8,7 +8,6 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
-use xmltree::Element;
 
 /// Read file/stdin and find all staring with '<pjd>' and ending with '</pjd>'
 #[derive(Parser, Debug)]
@@ -23,7 +22,7 @@ struct Args {
     stdin: bool,
 
     /// Path to directory where results will be stored (will be created if does not exist)
-    #[clap(short = 'o', long, default_value = ".")]
+    #[clap(short = 'o', long, default_value = "./output")]
     output: String,
 
     /// Path to file to read data from
@@ -44,7 +43,7 @@ fn read_file(path: Option<String>) -> Option<String> {
         None => {
             println!("File path is empty");
             None
-        },
+        }
         Some(path_) => {
             let mut src = String::new();
             if !Path::new(&path_).exists() {
@@ -84,13 +83,24 @@ fn store_to_file(path: &String, pjd: &String) -> Result<(), std::io::Error> {
 }
 
 fn get_command(pjd: &String) -> String {
-    Element::parse(pjd.as_bytes())
-        .unwrap()
-        .get_child("command")
-        .unwrap()
-        .get_text()
-        .unwrap()
-        .into_owned()
+    let opening_tag: &'static str = "<command>";
+    let closing_tag: &'static str = "</command>";
+    for mut line in pjd.lines() {
+        line = line.trim();
+        if line.starts_with(opening_tag) {
+            line = match line.strip_prefix(opening_tag) {
+                Some(line) => line,
+                _ => line,
+            };
+            line = match line.strip_suffix(closing_tag) {
+                Some(line) => line,
+                _ => line,
+            };
+            
+            return line.to_string();
+        }
+    }
+    String::from("unknown")
 }
 
 fn main() {
@@ -111,10 +121,8 @@ fn main() {
             None => {
                 return;
             }
-            Some(src) => {
-                src
-            }
-        }
+            Some(src) => src,
+        },
     };
 
     if args.html_decode {
