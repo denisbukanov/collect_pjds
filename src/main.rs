@@ -1,12 +1,8 @@
-extern crate alloc;
-
-use alloc::string::String;
-use alloc::vec::Vec;
 use clap::Parser;
 use html_escape;
 use std::fs::File;
 use std::io;
-use std::io::prelude::*;
+use std::io::prelude::{Read, Write};
 use std::path::Path;
 
 /// Read file/stdin and find all staring with '<pjd>' and ending with '</pjd>'
@@ -82,25 +78,18 @@ fn store_to_file(path: &String, pjd: &String) -> Result<(), std::io::Error> {
     }
 }
 
+/// Iterate over line, find <command> tag pair and try to extact body
+/// In case of failure — return "unknown"
 fn get_command(pjd: &String) -> String {
     let opening_tag: &'static str = "<command>";
     let closing_tag: &'static str = "</command>";
-    for mut line in pjd.lines() {
-        line = line.trim();
-        if line.starts_with(opening_tag) {
-            line = match line.strip_prefix(opening_tag) {
-                Some(line) => line,
-                _ => line,
-            };
-            line = match line.strip_suffix(closing_tag) {
-                Some(line) => line,
-                _ => line,
-            };
-            
-            return line.to_string();
-        }
-    }
-    String::from("unknown")
+    pjd.lines()
+        .map(str::trim)
+        .filter(|l| l.starts_with(opening_tag))
+        .map(|l| l.strip_prefix(opening_tag).unwrap_or(l).strip_suffix(closing_tag).unwrap_or(l))
+        .next()
+        .unwrap_or("unknown")
+        .to_string()
 }
 
 fn main() {
@@ -156,7 +145,7 @@ fn main() {
     let mut number: u16 = 0;
     for pjd in pjds.iter() {
         let command = get_command(&pjd);
-        let path = format!("{}/{:#02}_{}", args.output, number, command);
+        let path = format!("{}/{:#02}_{}.xml", args.output, number, command);
         match store_to_file(&path, &pjd) {
             Ok(_) => println!("Done: {}", path),
             Err(err) => println!("Error while writing '{}': {}", path, err),
