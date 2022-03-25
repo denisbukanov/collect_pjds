@@ -17,7 +17,11 @@ build:
     - cargo build --release
   after_script:
     - test -e /artifacts || mkdir /artifacts
-    - find target/release -maxdepth 1 -executable -type f  -exec cp -r "{}" /artifacts/ \;
+    - find target/release -maxdepth 1 -executable -type f -exec cp -r "{}" /artifacts/ \;
+  artifacts:
+    paths:
+      - /artifacts/
+    expire_in: 1 week
   cache:
     paths:
       - $CARGO_HOME
