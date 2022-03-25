@@ -16,7 +16,7 @@ build:
   script:
     - cargo build --release
   after_script:
-    - find target/release -maxdepth 1 -executable -type f  -exec cp -r "{}" /artifacts/ \;
+    - find target/release -maxdepth 1 -executable -type f  -exec rsync -r "{}" /artifacts/ \;
   cache:
     paths:
       - $CARGO_HOME
