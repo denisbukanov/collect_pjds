@@ -1,4 +1,5 @@
-Read file/stdin and find all staring with '<pjd>' and ending with '</pjd>'
+
+Read file/stdin and find all staring with `<pjd>` and ending with `</pjd>`
 
 **USAGE**:
 
