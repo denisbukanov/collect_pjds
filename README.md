@@ -1,12 +1,15 @@
 Read file/stdin and find all staring with '<pjd>' and ending with '</pjd>'
 
-USAGE:
+**USAGE**:
+
     collect_pjds [OPTIONS] [INPUT]
 
-ARGS:
+**ARGS**:
+
     <INPUT>    Path to file to read data from
 
-OPTIONS:
+**OPTIONS**:
+    
     -h, --html-decode        Shall we decode HTML entities before search
         --help               Print help information
     -o, --output <OUTPUT>    Path to directory where results will be stored (will be created if does
